@@ -17,3 +17,16 @@ crystal_vein_count = 8
 wood_vein_count = 10
 iron_vein_count = 8
 uranium_vein_count = 5
+wave_base_count = 5
+wave_linear_per_day = 3.0
+wave_superlinear_coeff = 0.65
+wave_superlinear_power = 1.32
+enemy_hp_linear_per_day = 0.14
+enemy_hp_superlinear_coeff = 0.018
+enemy_hp_superlinear_power = 1.35
+enemy_dmg_linear_per_day = 0.08
+enemy_dmg_superlinear_coeff = 0.008
+enemy_dmg_superlinear_power = 1.25
+enemy_speed_per_day = 0.015
+enemy_speed_max_mult = 1.45
+

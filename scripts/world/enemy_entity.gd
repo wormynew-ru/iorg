@@ -5,16 +5,20 @@ extends Node2D
 var config: EnemyConfig
 var hp: float = 40.0
 var max_hp: float = 40.0
+var attack_damage: float = 10.0
+var move_speed: float = 55.0
 var attack_timer: float = 0.0
 var path_points: PackedVector2Array = PackedVector2Array()
 var path_index: int = 0
 var repath_timer: float = 0.0
 
 
-func setup(p_config: EnemyConfig, day_scale: float, spawn_pos: Vector2) -> void:
+func setup(p_config: EnemyConfig, hp_scale: float, dmg_scale: float, speed_scale: float, spawn_pos: Vector2) -> void:
 	config = p_config
-	max_hp = p_config.max_hp * day_scale
+	max_hp = p_config.max_hp * hp_scale
 	hp = max_hp
+	attack_damage = p_config.attack_damage * dmg_scale
+	move_speed = p_config.move_speed * speed_scale
 	position = spawn_pos
 	queue_redraw()
 

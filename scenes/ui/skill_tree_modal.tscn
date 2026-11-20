@@ -1,18 +1,31 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/skill_tree_modal.gd" id="1_skill_gd"]
+[ext_resource type="Script" path="res://scripts/ui/talent_tree_canvas.gd" id="2_canvas_gd"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_skill"]
-bg_color = Color(0.117647, 0.160784, 0.231373, 0.98)
+bg_color = Color(0.0941176, 0.133333, 0.211765, 0.98)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.960784, 0.619608, 0.0431373, 0.7)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+border_color = Color(0.960784, 0.619608, 0.0431373, 0.75)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_detail"]
+bg_color = Color(0.0588235, 0.0901961, 0.164706, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.219608, 0.741176, 0.972549, 0.45)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [node name="SkillTreeModal" type="Control"]
 process_mode = 3
@@ -32,7 +45,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.027451, 0.0470588, 0.0941176, 0.78)
+color = Color(0.027451, 0.0470588, 0.0941176, 0.8)
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -43,92 +56,148 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(560, 0)
+custom_minimum_size = Vector2(760, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_skill")
 
 [node name="Margin" type="MarginContainer" parent="CenterContainer/Panel"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
 
 [node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="CenterContainer/Panel/Margin/VBox"]
+[node name="HeaderRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="CenterContainer/Panel/Margin/VBox/HeaderRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.960784, 0.619608, 0.0431373, 1)
 theme_override_font_sizes/font_size = 24
-text = "Древо навыков"
-horizontal_alignment = 1
+text = "Древо талантов"
 
-[node name="CrystalsLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox"]
+[node name="Spacer" type="Control" parent="CenterContainer/Panel/Margin/VBox/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PointsLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/HeaderRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Таланты: 0 / 20"
+
+[node name="CrystalsLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/HeaderRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.937255, 0.266667, 0.266667, 1)
 theme_override_font_sizes/font_size = 16
-text = "Доступно кристаллов: 0"
+text = "Кристаллы: 0"
+
+[node name="BranchHeaders" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="EcoHeader" type="Label" parent="CenterContainer/Panel/Margin/VBox/BranchHeaders"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.960784, 0.619608, 0.0431373, 1)
+theme_override_font_sizes/font_size = 14
+text = "ЭКОНОМИКА"
 horizontal_alignment = 1
 
-[node name="MiningRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="InfoLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/MiningRow"]
+[node name="LogHeader" type="Label" parent="CenterContainer/Panel/Margin/VBox/BranchHeaders"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Добыча и заводы — L0/3"
+theme_override_colors/font_color = Color(0.133333, 0.827451, 0.933333, 1)
+theme_override_font_sizes/font_size = 14
+text = "ЛОГИСТИКА"
+horizontal_alignment = 1
 
-[node name="UpgradeButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/MiningRow"]
-custom_minimum_size = Vector2(140, 38)
-layout_mode = 2
-text = "Изучить (50)"
-
-[node name="TransportRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="InfoLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/TransportRow"]
+[node name="DefHeader" type="Label" parent="CenterContainer/Panel/Margin/VBox/BranchHeaders"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Логистика — L0/3"
+theme_override_colors/font_color = Color(0.937255, 0.266667, 0.266667, 1)
+theme_override_font_sizes/font_size = 14
+text = "ОБОРОНА"
+horizontal_alignment = 1
 
-[node name="UpgradeButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/TransportRow"]
-custom_minimum_size = Vector2(140, 38)
+[node name="TreeCanvas" type="Control" parent="CenterContainer/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(720, 244)
 layout_mode = 2
-text = "Изучить (65)"
+script = ExtResource("2_canvas_gd")
 
-[node name="StorageRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 12
+[node name="Columns" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox/TreeCanvas"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
 
-[node name="InfoLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/StorageRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Склады и боезапас — L0/3"
-
-[node name="UpgradeButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/StorageRow"]
-custom_minimum_size = Vector2(140, 38)
-layout_mode = 2
-text = "Изучить (50)"
-
-[node name="DamageRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="InfoLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/DamageRow"]
+[node name="Branch0" type="VBoxContainer" parent="CenterContainer/Panel/Margin/VBox/TreeCanvas/Columns"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Урон башен — L0/3"
+theme_override_constants/separation = 22
 
-[node name="UpgradeButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/DamageRow"]
-custom_minimum_size = Vector2(140, 38)
+[node name="Branch1" type="VBoxContainer" parent="CenterContainer/Panel/Margin/VBox/TreeCanvas/Columns"]
 layout_mode = 2
-text = "Изучить (50)"
+size_flags_horizontal = 3
+theme_override_constants/separation = 22
+
+[node name="Branch2" type="VBoxContainer" parent="CenterContainer/Panel/Margin/VBox/TreeCanvas/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 22
+
+[node name="DetailPanel" type="PanelContainer" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_detail")
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/Panel/Margin/VBox/DetailPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="HBox" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox/DetailPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="InfoVBox" type="VBoxContainer" parent="CenterContainer/Panel/Margin/VBox/DetailPanel/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="DetailTitle" type="Label" parent="CenterContainer/Panel/Margin/VBox/DetailPanel/Margin/HBox/InfoVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Талант"
+
+[node name="DetailDesc" type="Label" parent="CenterContainer/Panel/Margin/VBox/DetailPanel/Margin/HBox/InfoVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Описание эффекта"
+autowrap_mode = 3
+
+[node name="DetailReq" type="Label" parent="CenterContainer/Panel/Margin/VBox/DetailPanel/Margin/HBox/InfoVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Требование"
+
+[node name="BuyButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/DetailPanel/Margin/HBox"]
+custom_minimum_size = Vector2(160, 48)
+layout_mode = 2
+size_flags_vertical = 4
+focus_mode = 0
+text = "Изучить"
 
 [node name="CloseButton" type="Button" parent="CenterContainer/Panel/Margin/VBox"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
+focus_mode = 0
 text = "Закрыть"

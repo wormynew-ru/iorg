@@ -34,6 +34,7 @@ signal sell_selected_pressed
 
 var _build_buttons: Dictionary = {} # building_id -> Button
 var _building_configs: Dictionary = {} # building_id -> BuildingConfig
+var _build_hotkeys: Dictionary = {} # building_id -> String
 var _active_build_id: String = ""
 var _selected_building: BuildingEntity = null
 var _toast_tween: Tween = null
@@ -55,6 +56,14 @@ func _ready() -> void:
 	_zoom_out_btn.pressed.connect(func() -> void: EventBus.camera_zoom_requested.emit(1.0 / 1.18))
 	_center_btn.pressed.connect(func() -> void: EventBus.camera_center_requested.emit())
 
+	_skip_day_button.tooltip_text = "Перейти к следующей волне (N)"
+	_sim_pause_button.tooltip_text = "Пауза симуляции (Пробел)"
+	_skills_button.tooltip_text = "Открыть древо талантов (T)"
+	_pause_button.tooltip_text = "Меню паузы (Esc)"
+	_insp_upgrade_btn.tooltip_text = "Улучшить выбранное здание (U)"
+	_insp_sell_btn.tooltip_text = "Продать выбранное здание (Del / Backspace)"
+	_center_btn.tooltip_text = "Центрировать камеру на Базе (C)"
+
 	EventBus.crystals_changed.connect(_on_crystals_changed)
 	EventBus.day_phase_changed.connect(_on_day_phase_changed)
 	EventBus.base_status_changed.connect(_on_base_status_changed)
@@ -62,24 +71,27 @@ func _ready() -> void:
 	EventBus.build_tool_changed.connect(_on_build_tool_changed)
 	EventBus.simulation_paused_changed.connect(_on_sim_paused_changed)
 	EventBus.save_completed.connect(_on_save_completed)
-	EventBus.touch_mode_changed.connect(func(_m: String) -> void: _update_touch_zoom_visibility())
+	EventBus.touch_mode_changed.connect(_on_touch_mode_changed)
 
 	_update_touch_zoom_visibility()
 
 
-func setup_build_bar(configs: Array[BuildingConfig]) -> void:
+func setup_build_bar(configs: Array[BuildingConfig], hotkeys: Dictionary = {}) -> void:
 	for child in _build_scroll_hbox.get_children():
 		child.queue_free()
 	_build_buttons.clear()
 	_building_configs.clear()
+	_build_hotkeys = hotkeys.duplicate()
 
 	for cfg in configs:
 		_building_configs[cfg.building_id] = cfg
 		var btn := Button.new()
-		btn.custom_minimum_size = Vector2(92, 52)
+		btn.custom_minimum_size = Vector2(96, 52)
 		btn.focus_mode = Control.FOCUS_NONE
-		btn.text = "%s\n%d кр." % [cfg.short_label, cfg.cost_crystals]
-		btn.tooltip_text = "%s (%d кр.) — %s" % [cfg.display_name, cfg.cost_crystals, cfg.description]
+		var hk: String = str(_build_hotkeys.get(cfg.building_id, ""))
+		var hk_prefix: String = ("[%s] " % hk) if not hk.is_empty() else ""
+		var eff_cost: int = GameState.get_effective_building_cost(cfg.cost_crystals)
+		btn.tooltip_text = "%s%s (%d кр.) — %s" % [hk_prefix, cfg.display_name, eff_cost, cfg.description]
 		btn.add_theme_color_override("font_color", cfg.accent_color)
 		btn.add_theme_font_size_override("font_size", 12)
 		var b_id: String = cfg.building_id
@@ -91,17 +103,21 @@ func setup_build_bar(configs: Array[BuildingConfig]) -> void:
 
 
 func _refresh_build_buttons() -> void:
+	var show_hotkeys: bool = not SettingsManager.is_touch_controls_visible()
 	for b_id in _build_buttons.keys():
 		var btn: Button = _build_buttons[b_id]
 		var cfg: BuildingConfig = _building_configs[b_id]
-		var affordable: bool = GameState.can_afford(cfg.cost_crystals) and not GameState.sim_paused
+		var eff_cost: int = GameState.get_effective_building_cost(cfg.cost_crystals)
+		var affordable: bool = GameState.can_afford(eff_cost) and not GameState.sim_paused
 		btn.disabled = not affordable
+		var hk: String = str(_build_hotkeys.get(b_id, ""))
+		var title_part: String = ("%s•%s" % [hk, cfg.short_label]) if (show_hotkeys and not hk.is_empty()) else cfg.short_label
 		if b_id == _active_build_id:
 			btn.modulate = Color(1.25, 1.25, 1.25, 1.0)
-			btn.text = "[%s]\n%d кр." % [cfg.short_label, cfg.cost_crystals]
+			btn.text = "[%s]\n%d кр." % [title_part, eff_cost]
 		else:
 			btn.modulate = Color(1.0, 1.0, 1.0, 1.0)
-			btn.text = "%s\n%d кр." % [cfg.short_label, cfg.cost_crystals]
+			btn.text = "%s\n%d кр." % [title_part, eff_cost]
 
 
 func _refresh_inspector() -> void:
@@ -120,7 +136,7 @@ func _refresh_inspector() -> void:
 		"Статус: %s" % b.status_text,
 	]
 	if cfg.attack_damage > 0.0:
-		stats_lines.append("Урон: %d • Дальность: %.1f" % [int(round(b.get_effective_attack_damage())), cfg.attack_range_cells + 0.25 * float(b.level - 1)])
+		stats_lines.append("Урон: %d • Дальность: %.1f" % [int(round(b.get_effective_attack_damage())), b.get_effective_attack_range_px() / maxf(b.cell_size, 1.0)])
 	_insp_stats.text = "\n".join(stats_lines)
 	_insp_desc.text = cfg.description
 
@@ -144,6 +160,11 @@ func _refresh_inspector() -> void:
 
 func _update_touch_zoom_visibility() -> void:
 	_zoom_box.visible = SettingsManager.is_touch_controls_visible()
+
+
+func _on_touch_mode_changed(_mode: String) -> void:
+	_update_touch_zoom_visibility()
+	_refresh_build_buttons()
 
 
 func _on_crystals_changed(new_crystals: int) -> void:

@@ -15,3 +15,18 @@ extends Resource
 @export var wood_vein_count: int = 10
 @export var iron_vein_count: int = 8
 @export var uranium_vein_count: int = 5
+
+@export_group("Wave Complexity Scaling")
+@export var wave_base_count: int = 5
+@export var wave_linear_per_day: float = 3.0
+@export var wave_superlinear_coeff: float = 0.65
+@export var wave_superlinear_power: float = 1.32
+@export var enemy_hp_linear_per_day: float = 0.14
+@export var enemy_hp_superlinear_coeff: float = 0.018
+@export var enemy_hp_superlinear_power: float = 1.35
+@export var enemy_dmg_linear_per_day: float = 0.08
+@export var enemy_dmg_superlinear_coeff: float = 0.008
+@export var enemy_dmg_superlinear_power: float = 1.25
+@export var enemy_speed_per_day: float = 0.015
+@export var enemy_speed_max_mult: float = 1.45
+

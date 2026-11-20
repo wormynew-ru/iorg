@@ -1,6 +1,21 @@
 extends Node2D
 ## Основной игровой контроллер YORG.io-подобной стратегии (сетка, логистика, волны, сохранения).
 
+const BUILD_HOTKEY_SLOTS: Array[Dictionary] = [
+	{"action": "build_1", "building_id": "crystal_mine", "label": "1"},
+	{"action": "build_2", "building_id": "sawmill", "label": "2"},
+	{"action": "build_3", "building_id": "iron_mine", "label": "3"},
+	{"action": "build_4", "building_id": "uranium_mine", "label": "4"},
+	{"action": "build_5", "building_id": "transporter", "label": "5"},
+	{"action": "build_6", "building_id": "arrow_factory", "label": "6"},
+	{"action": "build_7", "building_id": "cannon_factory", "label": "7"},
+	{"action": "build_8", "building_id": "reactor", "label": "8"},
+	{"action": "build_9", "building_id": "arrow_tower", "label": "9"},
+	{"action": "build_10", "building_id": "cannon_tower", "label": "0"},
+	{"action": "build_11", "building_id": "lightning_tower", "label": "Q"},
+	{"action": "build_12", "building_id": "wall", "label": "E"},
+]
+
 @export var balance: WorldBalanceConfig
 
 @onready var _camera: StrategicCamera = $World/StrategicCamera
@@ -12,6 +27,7 @@ extends Node2D
 @onready var _settings_modal: Control = $PauseLayer/SettingsModal
 @onready var _skill_tree_modal: Control = $PauseLayer/SkillTreeModal
 @onready var _game_over_modal: Control = $PauseLayer/GameOverModal
+@onready var _sanctuary_modal: Control = $PauseLayer/SanctuaryModal
 
 var _building_configs: Dictionary = {}
 var _enemy_configs: Dictionary = {}
@@ -87,12 +103,48 @@ func _unhandled_input(event: InputEvent) -> void:
 		else:
 			_set_pause_menu_open(not get_tree().paused)
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("sim_pause") and not get_tree().paused and not GameState.is_game_over:
+		return
+
+	if event.is_action_pressed("toggle_skills") and not get_tree().paused and not GameState.is_game_over and not _settings_modal.visible and not _game_over_modal.visible:
+		if _skill_tree_modal.visible:
+			_skill_tree_modal.hide_modal()
+		else:
+			_skill_tree_modal.open_modal()
+		get_viewport().set_input_as_handled()
+		return
+
+	if _are_gameplay_hotkeys_blocked():
+		return
+
+	if event.is_action_pressed("sim_pause"):
 		_toggle_sim_pause()
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("cancel_build") and not get_tree().paused:
+	elif event.is_action_pressed("cancel_build"):
 		_cancel_active_tool_or_selection()
 		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("skip_day"):
+		skip_day_to_night()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("center_camera"):
+		EventBus.camera_center_requested.emit()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("upgrade_selected"):
+		upgrade_selected_building()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("sell_selected"):
+		sell_selected_building()
+		get_viewport().set_input_as_handled()
+	else:
+		for slot in BUILD_HOTKEY_SLOTS:
+			var act: String = str(slot["action"])
+			if event.is_action_pressed(act):
+				set_build_tool(str(slot["building_id"]))
+				get_viewport().set_input_as_handled()
+				return
+
+
+func _are_gameplay_hotkeys_blocked() -> bool:
+	return get_tree().paused or GameState.is_game_over or _skill_tree_modal.visible or _settings_modal.visible or _game_over_modal.visible or _sanctuary_modal.visible
 
 
 func _notification(what: int) -> void:
@@ -110,15 +162,18 @@ func sync_buildings_to_state() -> void:
 
 
 func get_building_configs_ordered() -> Array[BuildingConfig]:
-	var ids: Array[String] = [
-		"crystal_mine", "sawmill", "iron_mine", "uranium_mine",
-		"transporter", "arrow_factory", "cannon_factory", "reactor",
-		"arrow_tower", "cannon_tower", "lightning_tower", "wall"
-	]
 	var out: Array[BuildingConfig] = []
-	for id in ids:
+	for slot in BUILD_HOTKEY_SLOTS:
+		var id: String = str(slot["building_id"])
 		if _building_configs.has(id):
 			out.append(_building_configs[id] as BuildingConfig)
+	return out
+
+
+func get_build_hotkeys_map() -> Dictionary:
+	var out: Dictionary = {}
+	for slot in BUILD_HOTKEY_SLOTS:
+		out[str(slot["building_id"])] = str(slot["label"])
 	return out
 
 
@@ -378,11 +433,13 @@ func _on_world_tapped(world_pos: Vector2) -> void:
 		if GameState.sim_paused:
 			return
 		var cfg: BuildingConfig = _building_configs.get(_active_build_id) as BuildingConfig
-		if cfg != null and _can_place_building_at(cell, cfg) and GameState.spend_crystals(cfg.cost_crystals):
-			var new_b: BuildingEntity = _spawn_building(cell, cfg)
-			_rebuild_network_and_paths()
-			_select_building(new_b)
-			_sync_overlay()
+		if cfg != null and _can_place_building_at(cell, cfg):
+			var build_cost: int = GameState.get_effective_building_cost(cfg.cost_crystals)
+			if GameState.spend_crystals(build_cost):
+				var new_b: BuildingEntity = _spawn_building(cell, cfg)
+				_rebuild_network_and_paths()
+				_select_building(new_b)
+				_sync_overlay()
 		return
 
 	var tapped_building: BuildingEntity = _grid_buildings.get(cell, null) as BuildingEntity
@@ -435,11 +492,13 @@ func _update_hover_preview() -> void:
 
 	_overlay.hovered_cell = cell
 	_overlay.active_build_config = cfg
-	_overlay.can_place_at_hover = _can_place_building_at(cell, cfg) and GameState.can_afford(cfg.cost_crystals) and not GameState.sim_paused
+	var hover_cost: int = GameState.get_effective_building_cost(cfg.cost_crystals) if cfg != null else 0
+	_overlay.can_place_at_hover = _can_place_building_at(cell, cfg) and GameState.can_afford(hover_cost) and not GameState.sim_paused
 	_overlay.hover_neighbors.clear()
 	if cfg != null and cfg.building_id != "wall":
 		var center: Vector2 = (Vector2(cell) + Vector2(0.5, 0.5)) * balance.cell_size
-		var r_px: float = cfg.link_radius_cells * balance.cell_size
+		var r_cells: float = (cfg.link_radius_cells + GameState.get_bonus_link_radius_cells()) if cfg.link_radius_cells > 0.0 else 0.0
+		var r_px: float = r_cells * balance.cell_size
 		for b in _buildings_list:
 			if is_instance_valid(b) and b.config.building_id != "wall":
 				var d: float = center.distance_to(b.position)
@@ -453,7 +512,7 @@ func _update_phase(delta: float) -> void:
 		GameState.phase_timer -= delta
 		# Небольшая регенерация Базы днём
 		if is_instance_valid(_base_building) and _base_building.hp < _base_building.max_hp:
-			_base_building.hp = minf(_base_building.max_hp, _base_building.hp + 6.0 * delta)
+			_base_building.hp = minf(_base_building.max_hp, _base_building.hp + GameState.get_base_day_regen_rate() * delta)
 			GameState.base_hp = _base_building.hp
 			EventBus.base_status_changed.emit(GameState.base_level, GameState.base_hp, GameState.base_max_hp)
 		EventBus.day_phase_changed.emit(GameState.day, false, maxf(0.0, GameState.phase_timer), 0)
@@ -470,13 +529,33 @@ func _update_phase(delta: float) -> void:
 			_complete_night_phase()
 
 
+func _compute_wave_enemy_count(day_num: int) -> int:
+	var d: float = float(maxi(1, day_num))
+	return balance.wave_base_count + int(round(d * balance.wave_linear_per_day + pow(d, balance.wave_superlinear_power) * balance.wave_superlinear_coeff))
+
+
+func _compute_enemy_hp_scale(day_num: int) -> float:
+	var d: float = float(maxi(0, day_num - 1))
+	return 1.0 + balance.enemy_hp_linear_per_day * d + balance.enemy_hp_superlinear_coeff * pow(d, balance.enemy_hp_superlinear_power)
+
+
+func _compute_enemy_dmg_scale(day_num: int) -> float:
+	var d: float = float(maxi(0, day_num - 1))
+	return 1.0 + balance.enemy_dmg_linear_per_day * d + balance.enemy_dmg_superlinear_coeff * pow(d, balance.enemy_dmg_superlinear_power)
+
+
+func _compute_enemy_speed_scale(day_num: int) -> float:
+	var d: float = float(maxi(0, day_num - 1))
+	return minf(balance.enemy_speed_max_mult, 1.0 + balance.enemy_speed_per_day * d)
+
+
 func _start_night_phase() -> void:
 	GameState.is_night = true
 	_wave_spawn_queue.clear()
 
-	var total_count: int = 5 + GameState.day * 3
+	var total_count: int = _compute_wave_enemy_count(GameState.day)
 	for i in range(total_count):
-		if GameState.day >= 4 and i % 6 == 5:
+		if GameState.day >= 4 and i % 5 == 4:
 			_wave_spawn_queue.append("zombie_tank")
 		elif GameState.day >= 2 and i % 3 == 2:
 			_wave_spawn_queue.append("zombie_fast")
@@ -486,14 +565,15 @@ func _start_night_phase() -> void:
 	if GameState.day % 10 == 0:
 		_wave_spawn_queue.append("zombie_boss")
 
-	_wave_spawn_interval = clampf(15.0 / float(maxi(1, _wave_spawn_queue.size())), 0.25, 1.1)
+	_wave_spawn_interval = clampf(15.0 / float(maxi(1, _wave_spawn_queue.size())), 0.18, 1.1)
 	_wave_spawn_timer = 0.4
 	_overlay.queue_redraw()
 	EventBus.day_phase_changed.emit(GameState.day, true, 0.0, _wave_spawn_queue.size())
 
 
 func _complete_night_phase() -> void:
-	var reward: int = balance.night_reward_base + GameState.day * balance.night_reward_per_day
+	var base_reward: float = float(balance.night_reward_base + GameState.day * balance.night_reward_per_day)
+	var reward: int = int(round(base_reward * GameState.get_crystal_bonus_multiplier()))
 	GameState.add_crystals(reward)
 	GameState.day += 1
 	GameState.is_night = false
@@ -520,9 +600,11 @@ func _spawn_enemy(enemy_id: String) -> void:
 			cell = Vector2i(balance.grid_width - 1, randi_range(0, balance.grid_height - 1))
 
 	var world_pos: Vector2 = (Vector2(cell) + Vector2(0.5, 0.5)) * balance.cell_size
-	var day_scale: float = 1.0 + 0.14 * float(GameState.day - 1)
+	var hp_scale: float = _compute_enemy_hp_scale(GameState.day)
+	var dmg_scale: float = _compute_enemy_dmg_scale(GameState.day)
+	var speed_scale: float = _compute_enemy_speed_scale(GameState.day)
 	var enemy := EnemyEntity.new()
-	enemy.setup(cfg, day_scale, world_pos)
+	enemy.setup(cfg, hp_scale, dmg_scale, speed_scale, world_pos)
 	_enemies_layer.add_child(enemy)
 	_enemies.append(enemy)
 	_recompute_enemy_path(enemy)
@@ -554,7 +636,7 @@ func _update_enemies(delta: float) -> void:
 		if target_building != null:
 			if enemy.attack_timer <= 0.0:
 				enemy.attack_timer = enemy.config.attack_cooldown
-				_damage_building(target_building, enemy.config.attack_damage)
+				_damage_building(target_building, enemy.attack_damage)
 			continue
 
 		if enemy.path_points.is_empty():
@@ -564,7 +646,7 @@ func _update_enemies(delta: float) -> void:
 			enemy.path_index = enemy.path_points.size() - 1
 		var target_pt: Vector2 = enemy.path_points[enemy.path_index]
 		var to_pt: Vector2 = target_pt - enemy.position
-		var step_dist: float = enemy.config.move_speed * delta
+		var step_dist: float = enemy.move_speed * delta
 		if to_pt.length() <= step_dist:
 			enemy.position = target_pt
 			if enemy.path_index < enemy.path_points.size() - 1:
@@ -608,9 +690,12 @@ func _damage_building(b: BuildingEntity, dmg: float) -> void:
 
 
 func _trigger_game_over() -> void:
+	if GameState.is_game_over:
+		return
 	GameState.is_game_over = true
 	SaveManager.delete_save()
-	_game_over_modal.open_modal(GameState.day, GameState.kills)
+	var rewards: Dictionary = MetaProgression.process_run_finished(GameState.day, GameState.kills)
+	_game_over_modal.open_modal(GameState.day, GameState.kills, rewards)
 	EventBus.game_over.emit(GameState.day, GameState.kills)
 
 
@@ -648,7 +733,8 @@ func _update_buildings_simulation(delta: float) -> void:
 				if b.production_timer >= f_interval:
 					b.production_timer -= f_interval
 					b.input_storage -= 1
-					b.output_storage = mini(cap, b.output_storage + cfg.output_per_cycle)
+					var produced: int = cfg.output_per_cycle + GameState.get_factory_bonus_output()
+					b.output_storage = mini(cap, b.output_storage + produced)
 					b.status_text = "Производство (%d/%d)" % [b.output_storage, cap]
 					b.queue_redraw()
 			elif b.input_storage == 0:
@@ -842,7 +928,7 @@ func _try_fire_tower(tower: BuildingEntity) -> void:
 		return
 
 	tower.input_storage -= 1
-	tower.attack_timer = tower.config.attack_cooldown
+	tower.attack_timer = tower.get_effective_attack_cooldown()
 	tower.turret_angle = (best_enemy.position - tower.position).angle()
 	tower.queue_redraw()
 
@@ -923,7 +1009,7 @@ func _damage_enemy(enemy: EnemyEntity, dmg: float) -> void:
 		return
 	if enemy.take_damage(dmg):
 		GameState.kills += 1
-		GameState.add_crystals(enemy.config.reward_crystals)
+		GameState.add_crystals(GameState.get_kill_crystal_reward(enemy.config.reward_crystals))
 		_enemies.erase(enemy)
 		enemy.queue_free()
 
@@ -963,9 +1049,10 @@ func _emit_hud_snapshots() -> void:
 
 func _connect_signals() -> void:
 	EventBus.game_pause_requested.connect(_set_pause_menu_open)
+	EventBus.skill_upgraded.connect(_on_skill_upgraded)
 
 	if _hud.has_method("setup_build_bar"):
-		_hud.setup_build_bar(get_building_configs_ordered())
+		_hud.setup_build_bar(get_building_configs_ordered(), get_build_hotkeys_map())
 	if _hud.has_signal("build_button_pressed"):
 		_hud.build_button_pressed.connect(set_build_tool)
 	if _hud.has_signal("skip_day_pressed"):
@@ -983,8 +1070,22 @@ func _connect_signals() -> void:
 	_pause_menu.settings_requested.connect(func() -> void: _settings_modal.open_modal())
 	_pause_menu.main_menu_requested.connect(_on_main_menu_requested)
 
+	_game_over_modal.sanctuary_requested.connect(func() -> void: _sanctuary_modal.open_modal(0))
 	_game_over_modal.restart_requested.connect(_on_restart_requested)
 	_game_over_modal.main_menu_requested.connect(_on_main_menu_requested)
+
+
+func _on_skill_upgraded(skill_id: String, _new_level: int) -> void:
+	if skill_id == "base_fortification":
+		for b in _buildings_list:
+			if is_instance_valid(b):
+				b.refresh_fortification_hp()
+		if is_instance_valid(_base_building):
+			GameState.base_max_hp = _base_building.max_hp
+			GameState.base_hp = _base_building.hp
+			EventBus.base_status_changed.emit(GameState.base_level, GameState.base_hp, GameState.base_max_hp)
+	if is_instance_valid(_selected_building):
+		EventBus.building_selected.emit(_selected_building)
 
 
 func _set_pause_menu_open(open: bool) -> void:

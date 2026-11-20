@@ -3,10 +3,13 @@ extends Control
 
 @onready var _continue_button: Button = $CenterContainer/Panel/Margin/VBox/Buttons/ContinueButton
 @onready var _new_game_button: Button = $CenterContainer/Panel/Margin/VBox/Buttons/NewGameButton
+@onready var _sanctuary_button: Button = $CenterContainer/Panel/Margin/VBox/Buttons/SanctuaryButton
 @onready var _settings_button: Button = $CenterContainer/Panel/Margin/VBox/Buttons/SettingsButton
 @onready var _quit_button: Button = $CenterContainer/Panel/Margin/VBox/Buttons/QuitButton
 @onready var _save_info_label: Label = $CenterContainer/Panel/Margin/VBox/SaveInfoLabel
+@onready var _meta_info_label: Label = $CenterContainer/Panel/Margin/VBox/MetaInfoLabel
 @onready var _settings_modal: Control = $SettingsModal
+@onready var _sanctuary_modal: Control = $SanctuaryModal
 
 
 func _ready() -> void:
@@ -15,11 +18,20 @@ func _ready() -> void:
 
 	_continue_button.pressed.connect(_on_continue_pressed)
 	_new_game_button.pressed.connect(_on_new_game_pressed)
+	_sanctuary_button.pressed.connect(_on_sanctuary_pressed)
 	_settings_button.pressed.connect(_on_settings_pressed)
 	_quit_button.pressed.connect(_on_quit_pressed)
 	EventBus.save_deleted.connect(_refresh_save_ui)
+	EventBus.meta_progression_changed.connect(_refresh_meta_ui)
 
 	_refresh_save_ui()
+	_refresh_meta_ui()
+
+
+func _refresh_meta_ui() -> void:
+	_meta_info_label.text = "Эссенция: %d • Семена: %d • Рекорд: %d дн." % [
+		MetaProgression.essence, MetaProgression.seeds, MetaProgression.best_day
+	]
 
 
 func _refresh_save_ui() -> void:
@@ -54,6 +66,10 @@ func _on_new_game_pressed() -> void:
 	var day_dur: float = bal.first_day_duration if bal != null else 55.0
 	GameState.reset_for_new_game(start_crystals, day_dur)
 	get_tree().change_scene_to_file("res://scenes/game/game_arena.tscn")
+
+
+func _on_sanctuary_pressed() -> void:
+	_sanctuary_modal.open_modal(0)
 
 
 func _on_settings_pressed() -> void:

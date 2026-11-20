@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/game_arena.gd" id="1_arena_gd"]
 [ext_resource type="Resource" path="res://resources/balance/default_world_balance.tres" id="2_bal"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/settings_modal.tscn" id="7_settings"]
 [ext_resource type="PackedScene" path="res://scenes/ui/skill_tree_modal.tscn" id="8_skills"]
 [ext_resource type="PackedScene" path="res://scenes/ui/game_over_modal.tscn" id="9_gameover"]
+[ext_resource type="PackedScene" path="res://scenes/ui/sanctuary_modal.tscn" id="10_sanctuary"]
 
 [node name="GameArena" type="Node2D"]
 script = ExtResource("1_arena_gd")
@@ -39,3 +40,5 @@ layer = 10
 [node name="SkillTreeModal" parent="PauseLayer" instance=ExtResource("8_skills")]
 
 [node name="GameOverModal" parent="PauseLayer" instance=ExtResource("9_gameover")]
+
+[node name="SanctuaryModal" parent="PauseLayer" instance=ExtResource("10_sanctuary")]

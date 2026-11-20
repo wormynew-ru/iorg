@@ -42,3 +42,7 @@ signal camera_zoom_requested(factor: float)
 
 @warning_ignore("unused_signal")
 signal camera_center_requested
+
+@warning_ignore("unused_signal")
+signal meta_progression_changed
+

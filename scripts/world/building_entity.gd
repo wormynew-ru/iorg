@@ -28,9 +28,9 @@ func setup(p_uid: int, p_grid_pos: Vector2i, p_config: BuildingConfig, p_cell_si
 	config = p_config
 	cell_size = p_cell_size
 	level = 1
-	max_hp = p_config.max_hp
+	max_hp = _compute_max_hp_for_level(level)
 	hp = max_hp
-	invested_crystals = p_config.cost_crystals
+	invested_crystals = GameState.get_effective_building_cost(p_config.cost_crystals)
 	position = Vector2(
 		(float(p_grid_pos.x) + 0.5) * cell_size,
 		(float(p_grid_pos.y) + 0.5) * cell_size
@@ -38,18 +38,30 @@ func setup(p_uid: int, p_grid_pos: Vector2i, p_config: BuildingConfig, p_cell_si
 	queue_redraw()
 
 
+func _compute_max_hp_for_level(target_level: int) -> float:
+	if config == null:
+		return 100.0
+	var level_scale: float = 1.0 + 0.35 * float(target_level - 1)
+	if config.building_id == "base":
+		return (config.max_hp + MetaProgression.get_base_bonus_hp()) * level_scale * GameState.get_fortification_hp_multiplier() * MetaProgression.get_base_hp_mult()
+	if config.building_id == "wall":
+		return config.max_hp * level_scale * GameState.get_fortification_hp_multiplier() * MetaProgression.get_wall_hp_mult()
+	return config.max_hp * level_scale
+
+
 func get_effective_storage_capacity() -> int:
 	if config == null or config.storage_capacity <= 0:
 		return 0
 	var level_bonus: float = 1.0 + 0.25 * float(level - 1)
-	return maxi(1, int(round(float(config.storage_capacity) * level_bonus * GameState.get_storage_multiplier())))
+	return maxi(1, int(round(float(config.storage_capacity) * level_bonus * GameState.get_storage_multiplier())) + GameState.get_bonus_storage_slots())
 
 
 func get_effective_production_interval() -> float:
 	if config == null:
 		return 1.5
 	var level_factor: float = 1.0 + 0.25 * float(level - 1)
-	return maxf(0.2, config.production_interval / (level_factor * GameState.get_mining_multiplier()))
+	var extra_speed: float = GameState.get_factory_speed_multiplier() if config.category == BuildingConfig.Category.FACTORY else 1.0
+	return maxf(0.2, config.production_interval / (level_factor * GameState.get_mining_multiplier() * extra_speed))
 
 
 func get_effective_transport_interval() -> float:
@@ -66,22 +78,29 @@ func get_effective_attack_damage() -> float:
 	return config.attack_damage * level_factor * GameState.get_damage_multiplier()
 
 
+func get_effective_attack_cooldown() -> float:
+	if config == null:
+		return 0.8
+	return maxf(0.18, config.attack_cooldown * GameState.get_tower_cooldown_multiplier())
+
+
 func get_effective_attack_range_px() -> float:
 	if config == null:
 		return 0.0
-	return (config.attack_range_cells + 0.25 * float(level - 1)) * cell_size
+	return (config.attack_range_cells + 0.25 * float(level - 1) + GameState.get_tower_bonus_range_cells()) * cell_size
 
 
 func get_link_radius_px() -> float:
-	if config == null:
+	if config == null or config.link_radius_cells <= 0.0:
 		return 0.0
-	return config.link_radius_cells * cell_size
+	return (config.link_radius_cells + GameState.get_bonus_link_radius_cells()) * cell_size
 
 
 func get_upgrade_cost() -> int:
 	if config == null:
 		return 999999
-	return int(round(float(config.cost_crystals) * pow(1.65, level)))
+	var raw_cost: int = int(round(float(config.cost_crystals) * pow(1.65, level)))
+	return GameState.get_effective_building_cost(raw_cost)
 
 
 func get_sell_refund() -> int:
@@ -93,8 +112,18 @@ func apply_upgrade() -> void:
 	invested_crystals += cost
 	level += 1
 	var hp_ratio: float = clampf(hp / maxf(max_hp, 1.0), 0.0, 1.0)
-	max_hp = config.max_hp * (1.0 + 0.35 * float(level - 1))
+	max_hp = _compute_max_hp_for_level(level)
 	hp = max_hp * maxf(hp_ratio, 0.85)
+	queue_redraw()
+
+
+func refresh_fortification_hp() -> void:
+	if config == null or not (config.building_id in ["base", "wall"]):
+		return
+	var new_max: float = _compute_max_hp_for_level(level)
+	var delta_hp: float = maxf(0.0, new_max - max_hp)
+	max_hp = new_max
+	hp = minf(max_hp, hp + delta_hp)
 	queue_redraw()
 
 
@@ -103,7 +132,7 @@ func accept_incoming_resource(kind: int) -> bool:
 		return false
 	if config.building_id == "base":
 		if kind == BuildingConfig.ResourceKind.CRYSTAL:
-			GameState.add_crystals(1)
+			GameState.register_base_crystal_delivered()
 			return true
 		return false
 

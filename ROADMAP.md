@@ -25,25 +25,27 @@
 | `scenes/ui/hud.tscn` | `CanvasLayer` — игровой интерфейс: день/ночь, кристаллы, База, панель постройки, инспектор, тач-зум |
 | `scenes/ui/pause_menu.tscn` | `Control` (`PROCESS_MODE_ALWAYS`) — меню паузы (продолжить, сохранить, сбросить сейв, настройки, в меню) |
 | `scenes/ui/settings_modal.tscn` | `Control` (`PROCESS_MODE_ALWAYS`) — окно настроек (громкость Master/SFX, режим тач-кнопок, полный экран) |
-| `scenes/ui/skill_tree_modal.tscn` | `Control` (`PROCESS_MODE_ALWAYS`) — древо навыков за кристаллы (добыча, логистика/телепорт, склады, урон) |
-| `scenes/ui/game_over_modal.tscn` | `Control` (`PROCESS_MODE_ALWAYS`) — экран поражения при разрушении Базы |
+| `scenes/ui/skill_tree_modal.tscn` | `Control` (`PROCESS_MODE_ALWAYS`) — ветвящееся 3-колоночное древо талантов (Экономика, Логистика, Оборона) |
+| `scenes/ui/sanctuary_modal.tscn` | `Control` (`PROCESS_MODE_ALWAYS`) — межзабеговое окно «Сад и Артефакты» (грядки, растения, слоты и коллекция артефактов) |
+| `scenes/ui/game_over_modal.tscn` | `Control` (`PROCESS_MODE_ALWAYS`) — экран поражения с трофеями забега и переходом в Сад |
 
 ## Скрипты (`res://scripts/`)
 ### Autoload-синглтоны (`res://scripts/autoload/`)
 | Путь | Глобальное имя | Ответственность |
 | --- | --- | --- |
 | `scripts/autoload/event_bus.gd` | `EventBus` | Шина глобальных сигналов экономики, цикла день/ночь, построек, навыков, камеры и сохранений |
-| `scripts/autoload/game_state.gd` | `GameState` | Состояние сессии: зерно карты, день/фаза, кристаллы, уровень/HP Базы, навыки, список построек |
+| `scripts/autoload/game_state.gd` | `GameState` | Состояние сессии: зерно карты, день/фаза, кристаллы, уровень/HP Базы, древо талантов (9 узлов), постройки |
 | `scripts/autoload/save_manager.gd` | `SaveManager` | Чтение/запись/удаление сохранений (`SAVE_VERSION = 2`) в `user://saves/save.json` |
 | `scripts/autoload/settings_manager.gd` | `SettingsManager` | Загрузка/сохранение настроек в `user://settings.cfg` (`ConfigFile`), экран и тач-режим |
 | `scripts/autoload/audio_manager.gd` | `AudioManager` | Инициализация аудиошин (`Master`, `SFX`, `Music`) и управление громкостью |
+| `scripts/autoload/meta_progression.gd` | `MetaProgression` | Пост-забеговые награды (Эссенция, Семена, дроп Артефактов), Сад и Артефакты (`user://saves/meta.json`) |
 
 ### Ресурсные классы (`res://scripts/resources/`)
 | Путь | Класс | Ответственность |
 | --- | --- | --- |
 | `scripts/resources/building_config.gd` | `BuildingConfig` | Параметры зданий, жил, производства, логистики и турелей |
 | `scripts/resources/enemy_config.gd` | `EnemyConfig` | Характеристики типов зомби и босса волны |
-| `scripts/resources/world_balance_config.gd` | `WorldBalanceConfig` | Размеры сетки, стартовые кристаллы, длительность дня/ночи и генерация жил |
+| `scripts/resources/world_balance_config.gd` | `WorldBalanceConfig` | Размеры сетки, стартовые кристаллы, длительность дня/ночи, генерация жил и сверхлинейная формула волн |
 
 ### Мир и стратегия (`res://scripts/world/`)
 | Путь | Класс / Роль | Ответственность |
@@ -57,12 +59,14 @@
 ### Интерфейс (`res://scripts/ui/`)
 | Путь | Ответственность |
 | --- | --- |
-| `scripts/ui/main_menu.gd` | Главное меню, проверка наличия сейва (`День`, `Кристаллы`, `Здания`) |
-| `scripts/ui/hud.gd` | Панель постройки, инспектор здания, день/ночь, пропуск дня, пауза симуляции, тач-зум |
+| `scripts/ui/main_menu.gd` | Главное меню, проверка сейва, отображение Эссенции/Семян/Рекорда и вход в «Сад и Артефакты» |
+| `scripts/ui/hud.gd` | Панель постройки с хоткеями, инспектор здания, день/ночь, пропуск дня, пауза симуляции, тач-зум |
 | `scripts/ui/pause_menu.gd` | Меню паузы, ручное сохранение и удаление прогресса |
 | `scripts/ui/settings_modal.gd` | Регулировка громкости, тач-режима и полноэкранного режима |
-| `scripts/ui/skill_tree_modal.gd` | Изучение глобальных навыков за кристаллы (добыча, логистика/телепорт, склады, урон) |
-| `scripts/ui/game_over_modal.gd` | Итоговая статистика поражения и перезапуск |
+| `scripts/ui/skill_tree_modal.gd` | Логика ветвящегося древа талантов (3 ветки × 3 тира), инспектор выбранного таланта и покупка за кристаллы |
+| `scripts/ui/talent_tree_canvas.gd` | Отрисовка соединительных линий и состояний (закрыто/доступно/изучено) между узлами древа талантов |
+| `scripts/ui/sanctuary_modal.gd` | Логика межзабегового окна «Сад и Артефакты»: посадка/улучшение/выкапывание растений, крафт и экипировка артефактов |
+| `scripts/ui/game_over_modal.gd` | Итоговая статистика поражения, награды после забега и перезапуск |
 
 ## Ресурсы баланса и контента (`res://resources/`)
 | Путь | Назначение |

@@ -1,0 +1,316 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/sanctuary_modal.gd" id="1_sanc_gd"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sanctuary"]
+bg_color = Color(0.0862745, 0.121569, 0.196078, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.133333, 0.772549, 0.368627, 0.8)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_subpanel"]
+bg_color = Color(0.0588235, 0.0862745, 0.14902, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.219608, 0.741176, 0.972549, 0.4)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="SanctuaryModal" type="Control"]
+process_mode = 3
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_sanc_gd")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.027451, 0.0470588, 0.0941176, 0.84)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(840, 610)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_sanctuary")
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 14
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HeaderRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="CenterContainer/Panel/Margin/VBox/HeaderRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.133333, 0.772549, 0.368627, 1)
+theme_override_font_sizes/font_size = 24
+text = "Сад и Артефакты"
+
+[node name="Spacer" type="Control" parent="CenterContainer/Panel/Margin/VBox/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EssenceLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/HeaderRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.654902, 0.545098, 0.980392, 1)
+theme_override_font_sizes/font_size = 15
+text = "Эссенция: 0"
+
+[node name="SeedsLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/HeaderRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.133333, 0.772549, 0.368627, 1)
+theme_override_font_sizes/font_size = 15
+text = "Семена: 0"
+
+[node name="BestDayLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/HeaderRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.960784, 0.619608, 0.0431373, 1)
+theme_override_font_sizes/font_size = 15
+text = "Рекорд: 0 дн."
+
+[node name="TabRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="GardenTabButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/TabRow"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "Сад растений"
+
+[node name="ArtifactsTabButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/TabRow"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "Артефакты"
+
+[node name="GardenPage" type="VBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="PlotsTitle" type="Label" parent="CenterContainer/Panel/Margin/VBox/GardenPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.92, 0.98, 0.9)
+theme_override_font_sizes/font_size = 13
+text = "Грядки (выберите грядку для посадки или улучшения):"
+
+[node name="PlotsGrid" type="GridContainer" parent="CenterContainer/Panel/Margin/VBox/GardenPage"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 3
+
+[node name="PlotDetailPanel" type="PanelContainer" parent="CenterContainer/Panel/Margin/VBox/GardenPage"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_subpanel")
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/Panel/Margin/VBox/GardenPage/PlotDetailPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="HBox" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox/GardenPage/PlotDetailPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PlotStatusLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/GardenPage/PlotDetailPanel/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+text = "Грядка #1"
+autowrap_mode = 3
+
+[node name="UnlockPlotButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/GardenPage/PlotDetailPanel/Margin/HBox"]
+custom_minimum_size = Vector2(180, 36)
+layout_mode = 2
+focus_mode = 0
+text = "Открыть грядку"
+
+[node name="UpgradePlotButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/GardenPage/PlotDetailPanel/Margin/HBox"]
+custom_minimum_size = Vector2(180, 36)
+layout_mode = 2
+focus_mode = 0
+text = "Улучшить"
+
+[node name="UprootPlotButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/GardenPage/PlotDetailPanel/Margin/HBox"]
+custom_minimum_size = Vector2(130, 36)
+layout_mode = 2
+focus_mode = 0
+text = "Выкопать (+1 сем.)"
+
+[node name="PlantsTitle" type="Label" parent="CenterContainer/Panel/Margin/VBox/GardenPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.92, 0.98, 0.9)
+theme_override_font_sizes/font_size = 13
+text = "Семена и растения (нажмите для выбора и посадки на пустую грядку):"
+
+[node name="PlantsGrid" type="GridContainer" parent="CenterContainer/Panel/Margin/VBox/GardenPage"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 3
+
+[node name="PlantActionPanel" type="PanelContainer" parent="CenterContainer/Panel/Margin/VBox/GardenPage"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_subpanel")
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/Panel/Margin/VBox/GardenPage/PlantActionPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="HBox" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox/GardenPage/PlantActionPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PlantDescLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/GardenPage/PlantActionPanel/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "Описание растения"
+autowrap_mode = 3
+
+[node name="PlantButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/GardenPage/PlantActionPanel/Margin/HBox"]
+custom_minimum_size = Vector2(180, 38)
+layout_mode = 2
+focus_mode = 0
+text = "Посадить"
+
+[node name="ArtifactsPage" type="VBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="SlotsLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/ArtifactsPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.92, 0.98, 0.9)
+theme_override_font_sizes/font_size = 13
+text = "Активные слоты артефактов:"
+
+[node name="EquippedSlotsRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox/ArtifactsPage"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CatalogLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/ArtifactsPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.92, 0.98, 0.9)
+theme_override_font_sizes/font_size = 13
+text = "Коллекция артефактов (выпадают после забегов или создаются за эссенцию):"
+
+[node name="ArtifactsGrid" type="GridContainer" parent="CenterContainer/Panel/Margin/VBox/ArtifactsPage"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 3
+
+[node name="ArtifactDetailPanel" type="PanelContainer" parent="CenterContainer/Panel/Margin/VBox/ArtifactsPage"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_subpanel")
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/Panel/Margin/VBox/ArtifactsPage/ArtifactDetailPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="HBox" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox/ArtifactsPage/ArtifactDetailPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="InfoVBox" type="VBoxContainer" parent="CenterContainer/Panel/Margin/VBox/ArtifactsPage/ArtifactDetailPanel/Margin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="ArtTitleLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/ArtifactsPage/ArtifactDetailPanel/Margin/HBox/InfoVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Артефакт"
+
+[node name="ArtDescLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/ArtifactsPage/ArtifactDetailPanel/Margin/HBox/InfoVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Описание"
+autowrap_mode = 3
+
+[node name="EquipArtButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/ArtifactsPage/ArtifactDetailPanel/Margin/HBox"]
+custom_minimum_size = Vector2(130, 42)
+layout_mode = 2
+size_flags_vertical = 4
+focus_mode = 0
+text = "Надеть"
+
+[node name="CraftUpgradeArtButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/ArtifactsPage/ArtifactDetailPanel/Margin/HBox"]
+custom_minimum_size = Vector2(170, 42)
+layout_mode = 2
+size_flags_vertical = 4
+focus_mode = 0
+text = "Создать"
+
+[node name="SummaryPanel" type="PanelContainer" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_subpanel")
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/Panel/Margin/VBox/SummaryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
+
+[node name="SummaryLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/SummaryPanel/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.133333, 0.827451, 0.933333, 1)
+theme_override_font_sizes/font_size = 12
+text = "Активные бонусы: нет"
+autowrap_mode = 3
+
+[node name="CloseButton" type="Button" parent="CenterContainer/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+focus_mode = 0
+text = "Закрыть"
