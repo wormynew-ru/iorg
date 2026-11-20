@@ -1,0 +1,82 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/touch_controls.gd" id="1_tc_gd"]
+[ext_resource type="PackedScene" path="res://scenes/ui/virtual_joystick.tscn" id="2_joy_scene"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dash_normal"]
+bg_color = Color(0.133333, 0.827451, 0.933333, 0.35)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.133333, 0.827451, 0.933333, 0.85)
+corner_radius_top_left = 62
+corner_radius_top_right = 62
+corner_radius_bottom_right = 62
+corner_radius_bottom_left = 62
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dash_pressed"]
+bg_color = Color(0.133333, 0.827451, 0.933333, 0.7)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.972549, 0.980392, 0.988235, 1)
+corner_radius_top_left = 62
+corner_radius_top_right = 62
+corner_radius_bottom_right = 62
+corner_radius_bottom_left = 62
+
+[node name="TouchControls" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_tc_gd")
+
+[node name="SafeMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 28
+
+[node name="HBox" type="HBoxContainer" parent="SafeMargin"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="LeftZone" type="VBoxContainer" parent="SafeMargin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+alignment = 2
+
+[node name="VirtualJoystick" parent="SafeMargin/HBox/LeftZone" instance=ExtResource("2_joy_scene")]
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="RightZone" type="VBoxContainer" parent="SafeMargin/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+alignment = 2
+
+[node name="DashButton" type="Button" parent="SafeMargin/HBox/RightZone"]
+custom_minimum_size = Vector2(124, 124)
+layout_mode = 2
+size_flags_horizontal = 8
+focus_mode = 0
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_dash_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_dash_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_dash_pressed")
+text = "РЫВОК"

@@ -1,0 +1,116 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/game_arena.gd" id="1_arena_gd"]
+[ext_resource type="Resource" path="res://resources/balance/default_arena_config.tres" id="2_arena_cfg"]
+[ext_resource type="PackedScene" path="res://scenes/game/player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://scenes/game/energy_orb.tscn" id="4_orb"]
+[ext_resource type="PackedScene" path="res://scenes/game/obstacle_block.tscn" id="5_obstacle"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="6_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="7_pause"]
+[ext_resource type="PackedScene" path="res://scenes/ui/settings_modal.tscn" id="8_settings"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_h"]
+size = Vector2(1920, 48)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_v"]
+size = Vector2(48, 1280)
+
+[node name="GameArena" type="Node2D"]
+script = ExtResource("1_arena_gd")
+arena_config = ExtResource("2_arena_cfg")
+
+[node name="World" type="Node2D" parent="."]
+process_mode = 1
+
+[node name="Floor" type="ColorRect" parent="World"]
+offset_right = 1920.0
+offset_bottom = 1280.0
+color = Color(0.0588235, 0.0901961, 0.164706, 1)
+
+[node name="ArenaBorder" type="Line2D" parent="World"]
+points = PackedVector2Array(24, 24, 1896, 24, 1896, 1256, 24, 1256)
+closed = true
+width = 6.0
+default_color = Color(0.117647, 0.160784, 0.231373, 1)
+
+[node name="Walls" type="StaticBody2D" parent="World"]
+
+[node name="TopWall" type="CollisionShape2D" parent="World/Walls"]
+position = Vector2(960, 0)
+shape = SubResource("RectangleShape2D_wall_h")
+
+[node name="BottomWall" type="CollisionShape2D" parent="World/Walls"]
+position = Vector2(960, 1280)
+shape = SubResource("RectangleShape2D_wall_h")
+
+[node name="LeftWall" type="CollisionShape2D" parent="World/Walls"]
+position = Vector2(0, 640)
+shape = SubResource("RectangleShape2D_wall_v")
+
+[node name="RightWall" type="CollisionShape2D" parent="World/Walls"]
+position = Vector2(1920, 640)
+shape = SubResource("RectangleShape2D_wall_v")
+
+[node name="Obstacles" type="Node2D" parent="World"]
+
+[node name="ObstacleNorth" parent="World/Obstacles" instance=ExtResource("5_obstacle")]
+position = Vector2(960, 320)
+block_size = Vector2(280, 44)
+
+[node name="ObstacleSouth" parent="World/Obstacles" instance=ExtResource("5_obstacle")]
+position = Vector2(960, 960)
+block_size = Vector2(280, 44)
+
+[node name="ObstacleWest" parent="World/Obstacles" instance=ExtResource("5_obstacle")]
+position = Vector2(460, 640)
+block_size = Vector2(48, 260)
+
+[node name="ObstacleEast" parent="World/Obstacles" instance=ExtResource("5_obstacle")]
+position = Vector2(1460, 640)
+block_size = Vector2(48, 260)
+
+[node name="Orbs" type="Node2D" parent="World"]
+
+[node name="Orb01" parent="World/Orbs" instance=ExtResource("4_orb")]
+position = Vector2(280, 240)
+orb_id = "orb_01"
+
+[node name="Orb02" parent="World/Orbs" instance=ExtResource("4_orb")]
+position = Vector2(960, 180)
+orb_id = "orb_02"
+
+[node name="Orb03" parent="World/Orbs" instance=ExtResource("4_orb")]
+position = Vector2(1640, 240)
+orb_id = "orb_03"
+
+[node name="Orb04" parent="World/Orbs" instance=ExtResource("4_orb")]
+position = Vector2(240, 640)
+orb_id = "orb_04"
+
+[node name="Orb05" parent="World/Orbs" instance=ExtResource("4_orb")]
+position = Vector2(1680, 640)
+orb_id = "orb_05"
+
+[node name="Orb06" parent="World/Orbs" instance=ExtResource("4_orb")]
+position = Vector2(280, 1040)
+orb_id = "orb_06"
+
+[node name="Orb07" parent="World/Orbs" instance=ExtResource("4_orb")]
+position = Vector2(960, 1100)
+orb_id = "orb_07"
+
+[node name="Orb08" parent="World/Orbs" instance=ExtResource("4_orb")]
+position = Vector2(1640, 1040)
+orb_id = "orb_08"
+
+[node name="Player" parent="World" instance=ExtResource("3_player")]
+position = Vector2(960, 640)
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]
+
+[node name="PauseLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="PauseMenu" parent="PauseLayer" instance=ExtResource("7_pause")]
+
+[node name="SettingsModal" parent="PauseLayer" instance=ExtResource("8_settings")]

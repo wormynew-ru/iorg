@@ -1,0 +1,105 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="1_menu_gd"]
+[ext_resource type="PackedScene" path="res://scenes/ui/settings_modal.tscn" id="2_settings_scene"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu"]
+bg_color = Color(0.117647, 0.160784, 0.231373, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.133333, 0.827451, 0.933333, 0.5)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu_gd")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0588235, 0.0901961, 0.164706, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_menu")
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 28
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.133333, 0.827451, 0.933333, 1)
+theme_override_font_sizes/font_size = 42
+text = "IORG"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="CenterContainer/Panel/Margin/VBox"]
+modulate = Color(0.972549, 0.980392, 0.988235, 0.72)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "2D-прототип • Godot 4.6.x (ПК и Android)"
+horizontal_alignment = 1
+
+[node name="SaveInfoLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.960784, 0.619608, 0.0431373, 1)
+theme_override_font_sizes/font_size = 14
+text = "Проверка сохранений..."
+horizontal_alignment = 1
+
+[node name="Buttons" type="VBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ContinueButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "Продолжить"
+
+[node name="NewGameButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "Новая игра"
+
+[node name="SettingsButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "Настройки"
+
+[node name="QuitButton" type="Button" parent="CenterContainer/Panel/Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "Выход"
+
+[node name="SettingsModal" parent="." instance=ExtResource("2_settings_scene")]

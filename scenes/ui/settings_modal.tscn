@@ -1,0 +1,139 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/settings_modal.gd" id="1_set_gd"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal"]
+bg_color = Color(0.117647, 0.160784, 0.231373, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.133333, 0.827451, 0.933333, 0.6)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[node name="SettingsModal" type="Control"]
+process_mode = 3
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_set_gd")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.027451, 0.0470588, 0.0941176, 0.78)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(480, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Настройки"
+horizontal_alignment = 1
+
+[node name="MasterRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="MasterLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/MasterRow"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Общая громкость"
+
+[node name="MasterSlider" type="HSlider" parent="CenterContainer/Panel/Margin/VBox/MasterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 100.0
+value = 85.0
+
+[node name="MasterValue" type="Label" parent="CenterContainer/Panel/Margin/VBox/MasterRow"]
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+text = "85%"
+horizontal_alignment = 2
+
+[node name="SfxRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="SfxLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/SfxRow"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Звуки (SFX)"
+
+[node name="SfxSlider" type="HSlider" parent="CenterContainer/Panel/Margin/VBox/SfxRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 100.0
+value = 85.0
+
+[node name="SfxValue" type="Label" parent="CenterContainer/Panel/Margin/VBox/SfxRow"]
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+text = "85%"
+horizontal_alignment = 2
+
+[node name="TouchRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TouchLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/TouchRow"]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Тач-управление"
+
+[node name="TouchModeOption" type="OptionButton" parent="CenterContainer/Panel/Margin/VBox/TouchRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FullscreenRow" type="HBoxContainer" parent="CenterContainer/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="FullscreenLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox/FullscreenRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Полный экран"
+
+[node name="FullscreenCheck" type="CheckButton" parent="CenterContainer/Panel/Margin/VBox/FullscreenRow"]
+layout_mode = 2
+
+[node name="CloseButton" type="Button" parent="CenterContainer/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Закрыть"

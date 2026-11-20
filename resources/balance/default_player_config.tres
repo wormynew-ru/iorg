@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="PlayerConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/player_config.gd" id="1_player_cfg"]
+
+[resource]
+script = ExtResource("1_player_cfg")
+move_speed = 320.0
+acceleration = 2200.0
+friction = 1800.0
+dash_speed = 760.0
+dash_duration = 0.16
+dash_cooldown = 0.75
