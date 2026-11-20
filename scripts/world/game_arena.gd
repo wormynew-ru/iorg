@@ -31,6 +31,7 @@ var _selected_building: BuildingEntity = null
 var _wave_spawn_queue: Array[String] = []
 var _wave_spawn_timer: float = 0.0
 var _wave_spawn_interval: float = 1.0
+var _inflight_to_uid: Dictionary = {}
 
 
 func _ready() -> void:
@@ -615,6 +616,10 @@ func _trigger_game_over() -> void:
 
 func _update_buildings_simulation(delta: float) -> void:
 	var teleport_enabled: bool = GameState.has_teleport_logistics()
+	_inflight_to_uid.clear()
+	for pkt in _overlay.packets:
+		var t_uid: int = int(pkt.get("target_uid", 0))
+		_inflight_to_uid[t_uid] = int(_inflight_to_uid.get(t_uid, 0)) + 1
 
 	for b in _buildings_list:
 		if not is_instance_valid(b) or b.config == null:
@@ -699,10 +704,11 @@ func _dispatch_resource(source: BuildingEntity, res_kind: int, teleport: bool) -
 
 	var next_hop: BuildingEntity = route[0]
 	var pkt_color: Color = _get_resource_color(res_kind)
+	_inflight_to_uid[next_hop.uid] = int(_inflight_to_uid.get(next_hop.uid, 0)) + 1
 	_overlay.packets.append({
 		"from": source.position,
 		"to": next_hop.position,
-		"target_uid": target.uid if next_hop == target else next_hop.uid,
+		"target_uid": next_hop.uid,
 		"resource_kind": res_kind,
 		"progress": 0.0,
 		"speed": 2.4 * GameState.get_transport_multiplier(),
@@ -714,48 +720,89 @@ func _dispatch_resource(source: BuildingEntity, res_kind: int, teleport: bool) -
 func _find_bfs_route(source: BuildingEntity, res_kind: int, allow_global: bool) -> Array[BuildingEntity]:
 	if allow_global:
 		var best_target: BuildingEntity = null
-		var best_dist: float = INF
+		var best_score: float = INF
 		for candidate in _buildings_list:
 			if not is_instance_valid(candidate) or candidate == source:
 				continue
 			if _accepts_final_resource(candidate, res_kind):
-				var d: float = source.position.distance_squared_to(candidate.position)
-				if d < best_dist:
-					best_dist = d
+				var load_ratio: float = _get_consumer_load_ratio(candidate)
+				var dist_norm: float = source.position.distance_to(candidate.position) / maxf(balance.cell_size * 20.0, 1.0)
+				var score: float = load_ratio * 10.0 + dist_norm
+				if score < best_score:
+					best_score = score
 					best_target = candidate
 		return [best_target] if best_target != null else []
 
-	var queue: Array[BuildingEntity] = []
+	# Поиск маршрута с учётом загруженности транспортёров и потребителей (приоритет — менее загруженным)
+	var frontier: Array[Dictionary] = [{"node": source, "cost": 0.0}]
+	var best_cost: Dictionary = {source.uid: 0.0}
 	var came_from: Dictionary = {source.uid: null}
+	var best_consumer: BuildingEntity = null
+	var best_consumer_score: float = INF
 
-	for nb in source.neighbors:
-		if not is_instance_valid(nb) or came_from.has(nb.uid):
+	while not frontier.is_empty():
+		var min_idx: int = 0
+		var min_cost: float = float(frontier[0]["cost"])
+		for i in range(1, frontier.size()):
+			var c: float = float(frontier[i]["cost"])
+			if c < min_cost:
+				min_cost = c
+				min_idx = i
+
+		var current_entry: Dictionary = frontier[min_idx]
+		frontier.remove_at(min_idx)
+		var current: BuildingEntity = current_entry["node"] as BuildingEntity
+		var current_cost: float = float(current_entry["cost"])
+
+		if current_cost > float(best_cost.get(current.uid, INF)) + 0.0001:
 			continue
-		came_from[nb.uid] = source
-		if _accepts_final_resource(nb, res_kind):
-			return [nb]
-		if nb.config.category == BuildingConfig.Category.LOGISTICS and nb.transit_queue.size() < nb.get_effective_storage_capacity():
-			queue.append(nb)
+		if current_cost >= best_consumer_score:
+			continue
 
-	var head: int = 0
-	while head < queue.size():
-		var current: BuildingEntity = queue[head]
-		head += 1
 		for nb in current.neighbors:
-			if not is_instance_valid(nb) or came_from.has(nb.uid):
+			if not is_instance_valid(nb) or nb == source:
 				continue
-			came_from[nb.uid] = current
-			if _accepts_final_resource(nb, res_kind):
-				var path: Array[BuildingEntity] = []
-				var step: BuildingEntity = nb
-				while step != null and step != source:
-					path.push_front(step)
-					step = came_from[step.uid] as BuildingEntity
-				return path
-			if nb.config.category == BuildingConfig.Category.LOGISTICS and nb.transit_queue.size() < nb.get_effective_storage_capacity():
-				queue.append(nb)
 
-	return []
+			if _accepts_final_resource(nb, res_kind):
+				var consumer_penalty: float = _get_consumer_load_ratio(nb) * 6.0
+				var total_score: float = current_cost + 1.0 + consumer_penalty
+				if total_score < best_consumer_score:
+					best_consumer_score = total_score
+					best_consumer = nb
+					came_from[nb.uid] = current
+				continue
+
+			if nb.config.category == BuildingConfig.Category.LOGISTICS:
+				var cap: int = nb.get_effective_storage_capacity()
+				var effective_queue: int = nb.transit_queue.size() + int(_inflight_to_uid.get(nb.uid, 0))
+				if effective_queue < cap:
+					var transit_ratio: float = float(effective_queue) / float(maxi(1, cap))
+					var step_cost: float = 1.0 + transit_ratio * 3.5
+					var next_cost: float = current_cost + step_cost
+					if next_cost < float(best_cost.get(nb.uid, INF)):
+						best_cost[nb.uid] = next_cost
+						came_from[nb.uid] = current
+						frontier.append({"node": nb, "cost": next_cost})
+
+	if best_consumer == null:
+		return []
+
+	var path: Array[BuildingEntity] = []
+	var step: BuildingEntity = best_consumer
+	while step != null and step != source:
+		path.push_front(step)
+		step = came_from.get(step.uid, null) as BuildingEntity
+	return path
+
+
+func _get_consumer_load_ratio(b: BuildingEntity) -> float:
+	if b.config.building_id == "base":
+		return 0.0
+	var cap: int = b.get_effective_storage_capacity()
+	if cap <= 0:
+		return 0.0
+	var pending: int = int(_inflight_to_uid.get(b.uid, 0))
+	return clampf(float(b.input_storage + pending) / float(cap), 0.0, 1.0)
 
 
 func _accepts_final_resource(b: BuildingEntity, res_kind: int) -> bool:
@@ -953,7 +1000,7 @@ func _on_skill_tree_requested() -> void:
 
 func _on_restart_requested() -> void:
 	get_tree().paused = false
-	GameState.reset_for_new_game(balance.starting_crystals, balance.day_duration)
+	GameState.reset_for_new_game(balance.starting_crystals, balance.first_day_duration)
 	get_tree().change_scene_to_file("res://scenes/game/game_arena.tscn")
 
 

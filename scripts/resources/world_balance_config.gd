@@ -6,6 +6,7 @@ extends Resource
 @export var grid_height: int = 24
 @export var cell_size: float = 48.0
 @export var starting_crystals: int = 180
+@export var first_day_duration: float = 55.0
 @export var day_duration: float = 28.0
 @export var night_duration: float = 32.0
 @export var night_reward_base: int = 40

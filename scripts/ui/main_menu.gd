@@ -51,7 +51,7 @@ func _on_continue_pressed() -> void:
 func _on_new_game_pressed() -> void:
 	var bal: WorldBalanceConfig = load("res://resources/balance/default_world_balance.tres") as WorldBalanceConfig
 	var start_crystals: int = bal.starting_crystals if bal != null else 180
-	var day_dur: float = bal.day_duration if bal != null else 28.0
+	var day_dur: float = bal.first_day_duration if bal != null else 55.0
 	GameState.reset_for_new_game(start_crystals, day_dur)
 	get_tree().change_scene_to_file("res://scenes/game/game_arena.tscn")
 
