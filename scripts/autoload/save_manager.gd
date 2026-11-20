@@ -3,7 +3,7 @@ extends Node
 
 const SAVE_DIR: String = "user://saves"
 const SAVE_PATH: String = "user://saves/save.json"
-const SAVE_VERSION: int = 1
+const SAVE_VERSION: int = 2
 
 
 func has_save() -> bool:
@@ -11,9 +11,14 @@ func has_save() -> bool:
 
 
 func save_game() -> bool:
+	if GameState.is_game_over:
+		return false
+
+	get_tree().call_group("game_arena", "sync_buildings_to_state")
+
 	var dir_err: Error = DirAccess.make_dir_recursive_absolute(SAVE_DIR)
 	if dir_err != OK:
-		EventBus.save_completed.emit(false, "Ошибка создания папки сохранений")
+		EventBus.save_completed.emit(false, "Ошибка папки сохранений")
 		return false
 
 	var payload: Dictionary = GameState.to_save_dict()
@@ -21,7 +26,7 @@ func save_game() -> bool:
 
 	var file: FileAccess = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
-		EventBus.save_completed.emit(false, "Не удалось записать сохранение")
+		EventBus.save_completed.emit(false, "Ошибка записи сохранения")
 		return false
 
 	file.store_string(JSON.stringify(payload, "\t"))
@@ -47,8 +52,7 @@ func load_game() -> Dictionary:
 		return {}
 
 	var data: Dictionary = json.data
-	var version: int = int(data.get("save_version", 0))
-	if version <= 0:
+	if int(data.get("save_version", 0)) != SAVE_VERSION:
 		return {}
 
 	return data

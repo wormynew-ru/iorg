@@ -68,7 +68,7 @@ horizontal_alignment = 1
 modulate = Color(0.972549, 0.980392, 0.988235, 0.72)
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
-text = "2D-прототип • Godot 4.6.x (ПК и Android)"
+text = "2D-стратегия и логистика • Godot 4.7"
 horizontal_alignment = 1
 
 [node name="SaveInfoLabel" type="Label" parent="CenterContainer/Panel/Margin/VBox"]

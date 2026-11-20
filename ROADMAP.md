@@ -5,7 +5,7 @@
 ## Корень проекта (`res://`)
 | Файл / Папка | Назначение |
 | --- | --- |
-| `project.godot` | Конфигурация Godot 4.6 (`GL Compatibility`, `1280x720` landscape, `InputMap`, Autoloads, главная сцена) |
+| `project.godot` | Конфигурация Godot 4.7 (`GL Compatibility`, `1280x720` landscape, `InputMap`, Autoloads, главная сцена) |
 | `.gitignore` | Игнорируемые файлы Godot (`.godot/`, `/android/`, временные файлы) |
 | `.editorconfig` | Настройки кодировки UTF-8 |
 | `.gitattributes` | Нормализация переводов строк LF |
@@ -21,61 +21,59 @@
 | Путь | Корневой узел / Роль |
 | --- | --- |
 | `scenes/main_menu/main_menu.tscn` | `Control` — стартовый экран: Новая игра, Продолжить, Настройки, Выход |
-| `scenes/game/game_arena.tscn` | `Node2D` — основная 2D-арена прототипа (мир, стены, препятствия, сферы, игрок, HUD, пауза) |
-| `scenes/game/player.tscn` | `CharacterBody2D` — управляемый 2D-персонаж с камерой `Camera2D` и рывком |
-| `scenes/game/energy_orb.tscn` | `Area2D` — собираемый объект с уникальным ID и анимацией подбора |
-| `scenes/game/obstacle_block.tscn` | `StaticBody2D` — базовое препятствие на арене |
-| `scenes/ui/hud.tscn` | `CanvasLayer` — игровой интерфейс (счёт, кнопка паузы, уведомление о сохранении, слой тач-управления) |
+| `scenes/game/game_arena.tscn` | `Node2D` — игровая 2D-арена стратегии: сетка, логистический слой, постройки, враги, камера, HUD и модалки |
+| `scenes/ui/hud.tscn` | `CanvasLayer` — игровой интерфейс: день/ночь, кристаллы, База, панель постройки, инспектор, тач-зум |
 | `scenes/ui/pause_menu.tscn` | `Control` (`PROCESS_MODE_ALWAYS`) — меню паузы (продолжить, сохранить, сбросить сейв, настройки, в меню) |
-| `scenes/ui/settings_modal.tscn` | `Control` (`PROCESS_MODE_ALWAYS`) — окно настроек (громкость Master/SFX, режим тач-ввода, полный экран) |
-| `scenes/ui/touch_controls.tscn` | `Control` — контейнер кроссплатформенного сенсорного управления (джойстик + кнопка рывка) |
-| `scenes/ui/virtual_joystick.tscn` | `Control` — виртуальный аналоговый джойстик с поддержкой мультитача и мыши для тестов |
+| `scenes/ui/settings_modal.tscn` | `Control` (`PROCESS_MODE_ALWAYS`) — окно настроек (громкость Master/SFX, режим тач-кнопок, полный экран) |
+| `scenes/ui/skill_tree_modal.tscn` | `Control` (`PROCESS_MODE_ALWAYS`) — древо навыков за кристаллы (добыча, логистика/телепорт, склады, урон) |
+| `scenes/ui/game_over_modal.tscn` | `Control` (`PROCESS_MODE_ALWAYS`) — экран поражения при разрушении Базы |
 
 ## Скрипты (`res://scripts/`)
 ### Autoload-синглтоны (`res://scripts/autoload/`)
 | Путь | Глобальное имя | Ответственность |
 | --- | --- | --- |
-| `scripts/autoload/event_bus.gd` | `EventBus` | Шина глобальных сигналов (`orb_collected`, `score_changed`, `save_completed`, `touch_mode_changed` и др.) |
-| `scripts/autoload/game_state.gd` | `GameState` | Хранение текущего состояния игровой сессии (счёт, позиция игрока, собранные ID, время) |
-| `scripts/autoload/save_manager.gd` | `SaveManager` | Чтение/запись/удаление сохранений в `user://saves/save.json` через `FileAccess` (`save_version`) |
-| `scripts/autoload/settings_manager.gd` | `SettingsManager` | Загрузка/сохранение настроек в `user://settings.cfg` (`ConfigFile`), режим экрана и тач-ввода |
-| `scripts/autoload/audio_manager.gd` | `AudioManager` | Инициализация аудиошин (`Master`, `SFX`, `Music`) и управление громкостью / проигрыванием |
+| `scripts/autoload/event_bus.gd` | `EventBus` | Шина глобальных сигналов экономики, цикла день/ночь, построек, навыков, камеры и сохранений |
+| `scripts/autoload/game_state.gd` | `GameState` | Состояние сессии: зерно карты, день/фаза, кристаллы, уровень/HP Базы, навыки, список построек |
+| `scripts/autoload/save_manager.gd` | `SaveManager` | Чтение/запись/удаление сохранений (`SAVE_VERSION = 2`) в `user://saves/save.json` |
+| `scripts/autoload/settings_manager.gd` | `SettingsManager` | Загрузка/сохранение настроек в `user://settings.cfg` (`ConfigFile`), экран и тач-режим |
+| `scripts/autoload/audio_manager.gd` | `AudioManager` | Инициализация аудиошин (`Master`, `SFX`, `Music`) и управление громкостью |
 
 ### Ресурсные классы (`res://scripts/resources/`)
 | Путь | Класс | Ответственность |
 | --- | --- | --- |
-| `scripts/resources/player_config.gd` | `PlayerConfig` | Типизированные параметры движения, рывка и отката игрока |
-| `scripts/resources/arena_config.gd` | `ArenaConfig` | Размеры арены, очки за сферу и параметры камеры |
+| `scripts/resources/building_config.gd` | `BuildingConfig` | Параметры зданий, жил, производства, логистики и турелей |
+| `scripts/resources/enemy_config.gd` | `EnemyConfig` | Характеристики типов зомби и босса волны |
+| `scripts/resources/world_balance_config.gd` | `WorldBalanceConfig` | Размеры сетки, стартовые кристаллы, длительность дня/ночи и генерация жил |
 
-### Игрок и мир (`res://scripts/player/`, `res://scripts/world/`)
-| Путь | Ответственность |
-| --- | --- |
-| `scripts/player/player.gd` | Физика перемещения (`move_and_slide`), рывок, считывание клавиатуры + виртуального джойстика |
-| `scripts/world/game_arena.gd` | Инициализация арены, восстановление состояния из `GameState`, автосейв при паузе/выходе |
-| `scripts/world/energy_orb.gd` | Логика подбора сферы, защита от повторного спавна уже собранных ID, tween-анимация |
-| `scripts/world/obstacle_block.gd` | Визуальная и коллизионная настройка препятствия |
+### Мир и стратегия (`res://scripts/world/`)
+| Путь | Класс / Роль | Ответственность |
+| --- | --- | --- |
+| `scripts/world/game_arena.gd` | Контроллер арены | Генерация жил, граф логистики BFS, тики добычи/заводов/башен, `AStarGrid2D` пути врагов, волны и боссы |
+| `scripts/world/strategic_camera.gd` | `StrategicCamera` | Панорамирование (WASD, ПКМ/СКМ, свайп) и зум (колесо, щипок, кнопки), обработка тапов по сетке |
+| `scripts/world/building_entity.gd` | `BuildingEntity` | Постройка на сетке, апгрейд/продажа, склады/очереди, отрисовка по категории и уровню |
+| `scripts/world/enemy_entity.gd` | `EnemyEntity` | Сущность врага/босса ночной волны и отрисовка HP |
+| `scripts/world/logistics_overlay.gd` | `LogisticsOverlay` | Быстрая отрисовка сетки, 4 типов жил, связей, призрака постройки, летящих грузов и выстрелов |
 
 ### Интерфейс (`res://scripts/ui/`)
 | Путь | Ответственность |
 | --- | --- |
-| `scripts/ui/main_menu.gd` | Логика главного меню, проверка наличия сейва для кнопки «Продолжить», переходы |
-| `scripts/ui/hud.gd` | Обновление счёта, индикатор сохранения, вызов паузы |
-| `scripts/ui/pause_menu.gd` | Постановка/снятие паузы, ручное сохранение, сброс прогресса, выход в главное меню |
-| `scripts/ui/settings_modal.gd` | Регулировка громкости, переключение режима тач-управления и полноэкранного режима |
-| `scripts/ui/touch_controls.gd` | Авто-видимость тач-элементов (`DisplayServer.is_touchscreen_available()` / настройка) |
-| `scripts/ui/virtual_joystick.gd` | Вычисление нормализованного вектора отклонения джойстика по касанию/мыши |
+| `scripts/ui/main_menu.gd` | Главное меню, проверка наличия сейва (`День`, `Кристаллы`, `Здания`) |
+| `scripts/ui/hud.gd` | Панель постройки, инспектор здания, день/ночь, пропуск дня, пауза симуляции, тач-зум |
+| `scripts/ui/pause_menu.gd` | Меню паузы, ручное сохранение и удаление прогресса |
+| `scripts/ui/settings_modal.gd` | Регулировка громкости, тач-режима и полноэкранного режима |
+| `scripts/ui/skill_tree_modal.gd` | Изучение глобальных навыков за кристаллы (добыча, логистика/телепорт, склады, урон) |
+| `scripts/ui/game_over_modal.gd` | Итоговая статистика поражения и перезапуск |
 
-## Ресурсы баланса (`res://resources/`)
+## Ресурсы баланса и контента (`res://resources/`)
 | Путь | Назначение |
 | --- | --- |
-| `resources/balance/default_player_config.tres` | Базовый конфиг игрока (`PlayerConfig`) |
-| `resources/balance/default_arena_config.tres` | Базовый конфиг арены (`ArenaConfig`) |
-| `resources/buildings/` | Резерв под `.tres`-конфиги построек/объектов |
-| `resources/enemies/` | Резерв под `.tres`-конфиги врагов |
+| `resources/balance/default_world_balance.tres` | Общий баланс мира (`WorldBalanceConfig`) |
+| `resources/buildings/*.tres` | 13 конфигов построек (`base`, 4 шахты, `transporter`, 3 завода, 3 башни, `wall`) |
+| `resources/enemies/*.tres` | 4 конфига врагов (`zombie_basic`, `zombie_fast`, `zombie_tank`, `zombie_boss`) |
 
 ## Ассеты (`res://assets/`)
 | Путь | Назначение |
 | --- | --- |
-| `assets/sprites/` | 2D-спрайты (`.png`, `.svg`) — заготовка под расширение |
-| `assets/audio/` | Звуковые эффекты и музыка (`.ogg`, `.wav`) — заготовка под расширение |
-| `assets/fonts/` | Шрифты (`.ttf`, `.otf`) — заготовка под расширение |
+| `assets/sprites/` | 2D-спрайты (`.png`, `.svg`) — заготовка под замену геометрии |
+| `assets/audio/` | Звуковые эффекты и музыка (`.ogg`, `.wav`) |
+| `assets/fonts/` | Шрифты (`.ttf`, `.otf`) |

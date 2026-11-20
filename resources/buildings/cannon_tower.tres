@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="BuildingConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/building_config.gd" id="1_cfg"]
+
+[resource]
+script = ExtResource("1_cfg")
+building_id = "cannon_tower"
+display_name = "Пушка"
+short_label = "Пушка"
+category = 4
+cost_crystals = 65
+max_hp = 175.0
+required_vein = 0
+input_kind = 6
+output_kind = 0
+production_interval = 1.0
+output_per_cycle = 1
+storage_capacity = 12
+link_radius_cells = 3.2
+transport_interval = 0.5
+attack_range_cells = 4.6
+attack_cooldown = 1.45
+attack_damage = 42.0
+splash_radius_px = 78.0
+chain_count = 1
+accent_color = Color(0.976471, 0.45098, 0.0862745, 1)
+description = "Бьёт по площади. Требует ядра с Завода ядер."

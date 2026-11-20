@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="BuildingConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/building_config.gd" id="1_cfg"]
+
+[resource]
+script = ExtResource("1_cfg")
+building_id = "iron_mine"
+display_name = "Железная шахта"
+short_label = "Железо"
+category = 1
+cost_crystals = 45
+max_hp = 140.0
+required_vein = 3
+input_kind = 0
+output_kind = 3
+production_interval = 1.8
+output_per_cycle = 1
+storage_capacity = 14
+link_radius_cells = 3.2
+transport_interval = 0.5
+attack_range_cells = 0.0
+attack_cooldown = 1.0
+attack_damage = 0.0
+splash_radius_px = 0.0
+chain_count = 1
+accent_color = Color(0.580392, 0.639216, 0.721569, 1)
+description = "Ставится на серую жилу железа. Поставляет руду на Завод ядер."

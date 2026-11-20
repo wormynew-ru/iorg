@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="BuildingConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/building_config.gd" id="1_cfg"]
+
+[resource]
+script = ExtResource("1_cfg")
+building_id = "sawmill"
+display_name = "Лесопилка"
+short_label = "Лес"
+category = 1
+cost_crystals = 25
+max_hp = 110.0
+required_vein = 2
+input_kind = 0
+output_kind = 2
+production_interval = 1.4
+output_per_cycle = 1
+storage_capacity = 14
+link_radius_cells = 3.2
+transport_interval = 0.45
+attack_range_cells = 0.0
+attack_cooldown = 1.0
+attack_damage = 0.0
+splash_radius_px = 0.0
+chain_count = 1
+accent_color = Color(0.960784, 0.619608, 0.0431373, 1)
+description = "Ставится на жёлтую жилу дерева. Поставляет сырьё на Завод стрел."

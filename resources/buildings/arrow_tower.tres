@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="BuildingConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/building_config.gd" id="1_cfg"]
+
+[resource]
+script = ExtResource("1_cfg")
+building_id = "arrow_tower"
+display_name = "Башня лучников"
+short_label = "Лук"
+category = 4
+cost_crystals = 30
+max_hp = 140.0
+required_vein = 0
+input_kind = 5
+output_kind = 0
+production_interval = 1.0
+output_per_cycle = 1
+storage_capacity = 16
+link_radius_cells = 3.2
+transport_interval = 0.5
+attack_range_cells = 5.2
+attack_cooldown = 0.55
+attack_damage = 16.0
+splash_radius_px = 0.0
+chain_count = 1
+accent_color = Color(0.980392, 0.8, 0.0823529, 1)
+description = "Быстрая башня по одиночной цели. Требует стрелы с Завода стрел."

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="BuildingConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/building_config.gd" id="1_cfg"]
+
+[resource]
+script = ExtResource("1_cfg")
+building_id = "base"
+display_name = "База"
+short_label = "База"
+category = 0
+cost_crystals = 100
+max_hp = 500.0
+required_vein = 0
+input_kind = 1
+output_kind = 0
+production_interval = 1.0
+output_per_cycle = 1
+storage_capacity = 999
+link_radius_cells = 4.2
+transport_interval = 0.35
+attack_range_cells = 0.0
+attack_cooldown = 1.0
+attack_damage = 0.0
+splash_radius_px = 0.0
+chain_count = 1
+accent_color = Color(0.133333, 0.827451, 0.933333, 1)
+description = "Главное здание. Уровень Базы ограничивает максимальный уровень всех остальных построек."

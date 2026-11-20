@@ -32,13 +32,14 @@ func _refresh_save_ui() -> void:
 	var save_data: Dictionary = SaveManager.load_game()
 	if save_data.is_empty():
 		_continue_button.disabled = true
-		_save_info_label.text = "Сохранение повреждено или устарело"
+		_save_info_label.text = "Сохранение устарело или повреждено"
 		return
 
-	var saved_score: int = int(save_data.get("score", 0))
-	var collected: Variant = save_data.get("collected_ids", [])
-	var collected_count: int = collected.size() if collected is Array else 0
-	_save_info_label.text = "Сохранение: счёт %d • сфер собрано: %d" % [saved_score, collected_count]
+	var saved_day: int = int(save_data.get("day", 1))
+	var saved_crystals: int = int(save_data.get("crystals", 0))
+	var b_list: Variant = save_data.get("buildings", [])
+	var b_count: int = b_list.size() if b_list is Array else 0
+	_save_info_label.text = "Сохранение: День %d • Кристаллы: %d • Зданий: %d" % [saved_day, saved_crystals, b_count]
 
 
 func _on_continue_pressed() -> void:
@@ -48,10 +49,10 @@ func _on_continue_pressed() -> void:
 
 
 func _on_new_game_pressed() -> void:
-	var arena_cfg: ArenaConfig = load("res://resources/balance/default_arena_config.tres") as ArenaConfig
-	var spawn_pos: Vector2 = arena_cfg.default_spawn_position if arena_cfg != null else Vector2(960.0, 640.0)
-	var target_arena: String = arena_cfg.arena_id if arena_cfg != null else "arena_01"
-	GameState.reset_for_new_game(spawn_pos, target_arena)
+	var bal: WorldBalanceConfig = load("res://resources/balance/default_world_balance.tres") as WorldBalanceConfig
+	var start_crystals: int = bal.starting_crystals if bal != null else 180
+	var day_dur: float = bal.day_duration if bal != null else 28.0
+	GameState.reset_for_new_game(start_crystals, day_dur)
 	get_tree().change_scene_to_file("res://scenes/game/game_arena.tscn")
 
 

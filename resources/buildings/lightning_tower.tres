@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="BuildingConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/building_config.gd" id="1_cfg"]
+
+[resource]
+script = ExtResource("1_cfg")
+building_id = "lightning_tower"
+display_name = "Башня молний"
+short_label = "Молния"
+category = 4
+cost_crystals = 110
+max_hp = 160.0
+required_vein = 0
+input_kind = 7
+output_kind = 0
+production_interval = 1.0
+output_per_cycle = 1
+storage_capacity = 12
+link_radius_cells = 3.4
+transport_interval = 0.5
+attack_range_cells = 5.6
+attack_cooldown = 0.95
+attack_damage = 34.0
+splash_radius_px = 0.0
+chain_count = 3
+accent_color = Color(0.654902, 0.545098, 0.980392, 1)
+description = "Поражает до 3 врагов цепным разрядом. Требует энергию от Реактора."

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="BuildingConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/building_config.gd" id="1_cfg"]
+
+[resource]
+script = ExtResource("1_cfg")
+building_id = "arrow_factory"
+display_name = "Завод стрел"
+short_label = "З.Стрел"
+category = 3
+cost_crystals = 35
+max_hp = 120.0
+required_vein = 0
+input_kind = 2
+output_kind = 5
+production_interval = 1.2
+output_per_cycle = 2
+storage_capacity = 16
+link_radius_cells = 3.4
+transport_interval = 0.4
+attack_range_cells = 0.0
+attack_cooldown = 1.0
+attack_damage = 0.0
+splash_radius_px = 0.0
+chain_count = 1
+accent_color = Color(0.984314, 0.74902, 0.141176, 1)
+description = "Перерабатывает дерево в стрелы для Башен лучников."

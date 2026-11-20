@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="BuildingConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/building_config.gd" id="1_cfg"]
+
+[resource]
+script = ExtResource("1_cfg")
+building_id = "uranium_mine"
+display_name = "Урановая шахта"
+short_label = "Уран"
+category = 1
+cost_crystals = 80
+max_hp = 150.0
+required_vein = 4
+input_kind = 0
+output_kind = 4
+production_interval = 2.2
+output_per_cycle = 1
+storage_capacity = 12
+link_radius_cells = 3.2
+transport_interval = 0.55
+attack_range_cells = 0.0
+attack_cooldown = 1.0
+attack_damage = 0.0
+splash_radius_px = 0.0
+chain_count = 1
+accent_color = Color(0.133333, 0.772549, 0.368627, 1)
+description = "Ставится на зелёную жилу урана. Питает Реакторы для башен молний."

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EnemyConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/enemy_config.gd" id="1_ecfg"]
+
+[resource]
+script = ExtResource("1_ecfg")
+enemy_id = "zombie_boss"
+display_name = "Босс волны"
+max_hp = 520.0
+move_speed = 46.0
+attack_damage = 40.0
+attack_cooldown = 1.25
+reward_crystals = 45
+radius_px = 23.0
+body_color = Color(0.752941, 0.14902, 0.827451, 1)
+is_boss = true

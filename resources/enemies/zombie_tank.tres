@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EnemyConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/enemy_config.gd" id="1_ecfg"]
+
+[resource]
+script = ExtResource("1_ecfg")
+enemy_id = "zombie_tank"
+display_name = "Громила"
+max_hp = 130.0
+move_speed = 52.0
+attack_damage = 20.0
+attack_cooldown = 1.2
+reward_crystals = 8
+radius_px = 16.0
+body_color = Color(0.862745, 0.14902, 0.14902, 1)
+is_boss = false
